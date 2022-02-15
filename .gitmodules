@@ -1,0 +1,6 @@
+[submodule "Assets/unity-dualpanto-framework"]
+	path = Assets/unity-dualpanto-framework
+	url = git@github.com:HassoPlattnerInstituteHCI/unity-dualpanto-framework
+[submodule "Assets/NavMeshComponents"]
+	path = Assets/NavMeshComponents
+	url = https://github.com/Unity-Technologies/NavMeshComponents
