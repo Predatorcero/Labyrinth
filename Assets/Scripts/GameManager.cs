@@ -7,19 +7,28 @@ using System.Threading.Tasks;
 
 public class GameManager : MonoBehaviour
 {
+    PantoHandle meHandle;
     private GameObject enemy;
-    private GameObject gameObjPlayer;
-    Player player;
+    private GameObject player;
+    Player playerScript;
+    Enemy enemyScript;
     PantoCollider[] pantoColliders;
+
+    private int currentLevel = 0;
     public bool gameStarted = false;
+    public bool advancedMode = false;
+    public bool openedDoors = false;
 
     async void Start()
     {
-
         await StartGame();
+        currentLevel++;
+        FindObjectOfType<Player>().playerDeathEvent += OnPlayerDeath;
+        meHandle = GameObject.Find("Panto").GetComponent<UpperHandle>();
+        playerScript = GameObject.FindObjectOfType<Player>();
+        enemyScript = GameObject.FindObjectOfType<Enemy>();
         enemy = GameObject.FindGameObjectWithTag("Enemy");
-        player = GameObject.FindObjectOfType<Player>();
-        gameObjPlayer = GameObject.FindGameObjectWithTag("Player");
+        player = GameObject.FindGameObjectWithTag("Player");
         pantoColliders = GameObject.FindObjectsOfType<PantoCollider>();
         await Task.Delay(1000);
         foreach (PantoCollider collider in pantoColliders)
@@ -30,23 +39,28 @@ public class GameManager : MonoBehaviour
 
     }
 
-    async void Update() // async update...
+    void Update()
     {
         if (!gameStarted) return;
-        if(Input.GetKeyDown(KeyCode.Q))
-        {
-            foreach (PantoCollider collider in pantoColliders)
-            {
-                Destroy(collider);
-            }
-        }
-        if (player.playerHealth < 0) 
-        {
-            gameStarted = false;
-            await Task.Delay(2000);
-            gameObjPlayer.transform.position = player.startPosition;
-            await StartGame();
+    }
 
+    async public void OnPlayerDeath(Player player)
+    {
+        gameStarted = false;
+        await Task.Delay(2000);
+        foreach (PantoCollider collider in pantoColliders)
+        {
+            collider.Disable();
+        }
+        player.transform.position = playerScript.startPosition;
+        enemy.transform.position = enemyScript.startPosition;
+        await StartGame();
+        foreach (PantoCollider collider in pantoColliders)
+        {
+            if (collider.gameObject.tag == "Door" && openedDoors) {
+                continue;
+            }
+            collider.Enable();
         }
     }
 
@@ -54,17 +68,36 @@ public class GameManager : MonoBehaviour
     {
         // Level level = GameObject.Find("Panto").GetComponent<Level>();
         // await level.PlayIntroduction(1.0f);
-        // await GameObject.FindObjectOfType<PantoIntro>().RunIntros();
-        await GameObject.FindObjectOfType<Enemy>().ActivateEnemy();
+        await GameObject.FindObjectOfType<PantoIntro>().RunIntros();
+        if (advancedMode) {
+            await GameObject.FindObjectOfType<EnemyAI>().ActivateEnemyAI();
+        } else {
+            await GameObject.FindObjectOfType<Enemy>().ActivateEnemy();
+        }
         await GameObject.FindObjectOfType<Player>().ActivatePlayer();
-        GameObject.FindGameObjectWithTag("Key").GetComponent<CapsuleCollider>().isTrigger = true;
         gameStarted = true;
     }
 
-    public async void LoadNewScene()
+
+    public async Task LoadNewScene()
     {
         gameStarted = false;
-        SceneManager.LoadScene("Level 2");
+        foreach (PantoCollider collider in pantoColliders)
+        {
+            collider.Remove();
+        }
+        SceneManager.LoadScene("Level " + (currentLevel + 1));
         await StartGame();
+        pantoColliders = GameObject.FindObjectsOfType<PantoCollider>();
+        await Task.Delay(1000);
+        foreach (PantoCollider collider in pantoColliders)
+        {
+            collider.CreateObstacle();
+            collider.Enable();
+        }
+    }
+    public async void EndGame()
+    {
+        Debug.Log("YOU WON!");
     }
 }

@@ -10,7 +10,7 @@ public class PantoIntro : MonoBehaviour
     public List<PantoIntroBase> introductions;
 
     public KeyCode keyToStart = KeyCode.U;
-    public KeyCode keyToCancel = KeyCode.X;
+    public KeyCode keyToCancel = KeyCode.Escape;
     private bool isIntroducing = false;
 
     private bool shouldCancel = false;

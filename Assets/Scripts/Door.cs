@@ -17,7 +17,8 @@ public class Door : MonoBehaviour
 
     public void Open()
     {
-        Destroy(gameObject);
+        gameObject.SetActive(false);
+        FindObjectOfType<GameManager>().openedDoors = true;
     }
     
 }

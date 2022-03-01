@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DualPantoFramework;
@@ -7,14 +7,15 @@ using System.Threading.Tasks;
 public class Enemy : MonoBehaviour
 {
     PantoHandle itHandle;
-    Vector3 direction = Vector3.right;
+    public Vector3 startPosition;
+    private Vector3 direction = Vector3.right;
     private AudioSource audioSource;
     public AudioClip weakHitClip;
-    public float speed = 3.0f;
-    bool free = true;
+    public float speed = 1.0f;
 
     void Start()
     {
+        startPosition = transform.position;
         audioSource = GetComponent<AudioSource>();
         itHandle = GameObject.Find("Panto").GetComponent<LowerHandle>();
     }
